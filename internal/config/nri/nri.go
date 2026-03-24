@@ -8,6 +8,8 @@ import (
 	validator "github.com/containerd/nri/plugins/default-validator"
 	"github.com/containerd/otelttrpc"
 	"github.com/containerd/ttrpc"
+
+	"github.com/cri-o/cri-o/internal/nri/allowmutations"
 )
 
 // Config represents the CRI-O NRI configuration.
@@ -20,7 +22,8 @@ type Config struct {
 	PluginRequestTimeout      time.Duration `toml:"nri_plugin_request_timeout"`
 	DisableConnections        bool          `toml:"nri_disable_connections"`
 	withTracing               bool
-	DefaultValidator          *DefaultValidatorConfig `toml:"default_validator"`
+	DefaultValidator          *DefaultValidatorConfig          `toml:"default_validator"`
+	AllowMutations            *allowmutations.AllowMutationsConfig `toml:"allow_mutations"`
 }
 
 type DefaultValidatorConfig struct {
@@ -44,6 +47,7 @@ func New() *Config {
 		PluginRegistrationTimeout: nri.DefaultPluginRegistrationTimeout,
 		PluginRequestTimeout:      nri.DefaultPluginRequestTimeout,
 		DefaultValidator:          &DefaultValidatorConfig{},
+		AllowMutations:            &allowmutations.AllowMutationsConfig{},
 	}
 }
 
@@ -129,6 +133,12 @@ func (c *Config) ToOptions() []nri.Option {
 
 	if c != nil && c.DefaultValidator != nil {
 		opts = append(opts, nri.WithDefaultValidator(c.DefaultValidator.ToNRI()))
+	}
+
+	if c != nil && c.AllowMutations != nil {
+		if plugin := allowmutations.GetBuiltinPlugin(c.AllowMutations); plugin != nil {
+			opts = append(opts, nri.WithBuiltinPlugins(plugin))
+		}
 	}
 
 	if c.withTracing {

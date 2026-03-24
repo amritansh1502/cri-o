@@ -1,0 +1,22 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-test-allow-mutations
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      files:
+        - path: /etc/crio/nri_plugins/AllowMutations/config.yaml
+          mode: 0644
+          overwrite: true
+          contents:
+            source: data:text/plain;charset=utf-8;base64,YWxsb3dlZE5hbWVzcGFjZXM6CiAgLSBhbGxvd2VkLW5zCg==
+        - path: /etc/crio/crio.conf.d/99-allow-mutations.conf
+          mode: 0644
+          overwrite: true
+          contents:
+            source: data:text/plain;charset=utf-8;base64,W2NyaW8ubnJpXQplbmFibGVfbnJpID0gdHJ1ZQoKW2NyaW8ubnJpLmFsbG93X211dGF0aW9uc10KbnJpX2VuYWJsZV9hbGxvd19tdXRhdGlvbnMgPSB0cnVlCm5yaV9hbGxvd19tdXRhdGlvbnNfY29uZmlnX3BhdGggPSAiL2V0Yy9jcmlvL25yaV9wbHVnaW5zL0FsbG93TXV0YXRpb25zL2NvbmZpZy55YW1sIgo=

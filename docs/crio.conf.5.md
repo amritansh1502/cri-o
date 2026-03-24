@@ -653,6 +653,20 @@ List of required NRI plugins that must be present.
 **nri_validator_tolerate_missing_plugins_annotation**=""
 Name of the annotation used to indicate toleration of missing required NRI plugins.
 
+## CRIO.NRI.ALLOW_MUTATIONS TABLE
+
+The `crio.nri.allow_mutations` table contains settings for the built-in NRI
+AllowMutations plugin, which restricts NRI mutations to containers running in
+explicitly allowed namespaces. The list of allowed namespaces is read from an
+external YAML configuration file, which can be deployed via MCO on OpenShift.
+
+**nri_enable_allow_mutations**=false
+  Enable the AllowMutations NRI plugin.
+
+**nri_allow_mutations_config_path**=""
+  Path to the AllowMutations YAML configuration file. Defaults to
+  `/etc/crio/nri_plugins/AllowMutations/config.yaml` when empty.
+
 # SEE ALSO
 
 crio.conf.d(5), containers-storage.conf(5), containers-policy.json(5), containers-registries.conf(5), crio(8)

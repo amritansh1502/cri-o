@@ -702,6 +702,11 @@ func initCrioTemplateConfig(c *Config) ([]*templateConfigValue, error) {
 			group:          crioNRIConfig,
 			isDefaultValue: dc.NRI.IsDefaultValidatorDefaultConfig(),
 		},
+		{
+			templateString: templateStringCrioNRIAllowMutations,
+			group:          crioNRIConfig,
+			isDefaultValue: !c.NRI.AllowMutations.Enable,
+		},
 	}
 
 	return crioTemplateConfig, nil
@@ -1783,5 +1788,17 @@ const templateStringCrioNRIDefaultValidator = `# NRI default validator configura
 {{ $.Comment }}nri_validator_required_plugins = [
 {{ range $p := .NRI.DefaultValidator.RequiredPlugins }}{{ $.Comment }}{{ printf "\t%q,\n" $p }}{{ end }}{{ $.Comment }}]
 {{ $.Comment }}nri_validator_tolerate_missing_plugins_annotation = "{{ .NRI.DefaultValidator.TolerateMissingAnnotation }}"
+
+`
+
+const templateStringCrioNRIAllowMutations = `# NRI AllowMutations plugin configuration.
+# If enabled, this builtin plugin restricts NRI mutations to containers running
+# in explicitly allowed namespaces. The list of allowed namespaces is read from
+# an external YAML configuration file. Namespaces not in the list will have all
+# NRI container adjustments rejected.
+#
+{{ $.Comment }}[crio.nri.allow_mutations]
+{{ $.Comment }}nri_enable_allow_mutations = {{ .NRI.AllowMutations.Enable }}
+{{ $.Comment }}nri_allow_mutations_config_path = "{{ .NRI.AllowMutations.ConfigPath }}"
 
 `
