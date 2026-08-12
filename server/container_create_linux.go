@@ -149,6 +149,16 @@ func clearReadOnly(m *rspec.Mount) {
 	m.Options = append(m.Options, "rw")
 }
 
+func removeOption(options []string, opt string) []string {
+	result := options[:0]
+	for _, o := range options {
+		if o != opt {
+			result = append(result, o)
+		}
+	}
+	return result
+}
+
 func (s *Server) addOCIBindMounts(ctx context.Context, ctr ctrfactory.Container, ctrInfo *storage.ContainerInfo, maybeRelabel, skipRelabel, cgroup2RW, idMapSupport, rroSupport bool) ([]oci.ContainerVolume, []rspec.Mount, []*safeMountInfo, error) {
 	ctx, span := log.StartSpan(ctx)
 	defer span.End()
@@ -354,6 +364,20 @@ func (s *Server) addOCIBindMounts(ctx context.Context, ctr ctrfactory.Container,
 			options = append(options, "ro")
 		default:
 			options = append(options, "rw")
+		}
+
+		// Merge bind mount options (noexec, nosuid, nodev) from CRI mount_options.
+		// Resolve conflicts: remove the positive form if the negative form is requested.
+		for _, opt := range m.GetMountOptions() {
+			switch opt {
+			case "noexec":
+				options = removeOption(options, "exec")
+			case "nosuid":
+				options = removeOption(options, "suid")
+			case "nodev":
+				options = removeOption(options, "dev")
+			}
+			options = append(options, opt)
 		}
 
 		if m.GetSelinuxRelabel() {

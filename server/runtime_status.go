@@ -38,6 +38,7 @@ func (s *Server) Status(ctx context.Context, req *types.StatusRequest) (*types.S
 		Features: &types.RuntimeFeatures{
 			SupplementalGroupsPolicy:  true,
 			UserNamespacesHostNetwork: true,
+			MountOptions:              true,
 		},
 	}
 
